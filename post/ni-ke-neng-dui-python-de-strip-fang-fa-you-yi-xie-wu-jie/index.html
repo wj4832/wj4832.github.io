@@ -1,0 +1,277 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>你可能对Python的strip方法有一些误解 | 瓜丢</title>
+
+<link rel="shortcut icon" href="https://wj4832.github.io/favicon.ico?v=1677070715078">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://wj4832.github.io/styles/main.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css"> -->
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/highlight.js/9.12.0/languages//dart.min.js"></script>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script> -->
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+    
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="/">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            瓜丢
+        </div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="changeNavbar">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+            <div class="nav-item">
+                
+                <a href="/" class="menu gt-a-link">
+                    首页
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/archives" class="menu gt-a-link">
+                    归档
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/tags" class="menu gt-a-link">
+                    标签
+                </a>
+                
+            </div>
+            
+            <div class="nav-item">
+                
+                <a href="/post/about" class="menu gt-a-link">
+                    关于
+                </a>
+                
+            </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1677070715078"
+                action="/search/">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+<script>
+    /* 移动端导航栏展开/收起切换 */
+    document.getElementById('changeNavbar').onclick = () => {
+        var element = document.getElementById('navbarSupportedContent');
+        if (element.style.display === 'none' || element.style.display === '') {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+</script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/@waline/client@v2/dist/waline.css"
+/>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    你可能对Python的strip方法有一些误解
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 02-19 ·
+                    </time>
+                    
+                        <a href="https://wj4832.github.io/tag/python/" class="post-tags">
+                            # Python
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>使用strip方法对字符串去除首尾特定字符时，出现了非预期的效果？</em></p>
+<!-- more -->
+<h1 id="问题">问题</h1>
+<p>在Python的一些交流群和论坛里，看到不止一个人提出过这样的问题：为什么去除字符串首尾特定字符的时候，出现的结果很奇怪。比如：</p>
+<pre><code>a_string = &quot;append this list with string paap&quot;
+resp = a_string.strip(&quot;ap&quot;)
+print(resp)
+# 预期结果  pend this list with string pa
+# 实际结果  end this list with string
+</code></pre>
+<h1 id="原因">原因</h1>
+<p>查看strip方法，如下：</p>
+<pre><code>def strip(self, *args, **kwargs): # real signature unknown
+    &quot;&quot;&quot;
+    Return a copy of the string with leading and trailing whitespace removed.
+    
+    If chars is given and not None, remove characters in chars instead.
+    &quot;&quot;&quot;
+    pass
+</code></pre>
+<p>方法注释的意思是：当你使用strip方法时，如果不传入参数，那么此时会把你想要处理的字符串对象，去除首尾的空格后返回结果；<br>
+如果传入了参数，且参数不是None的时候，那么就会在被处理字符串的首尾分别删去你传入的参数字符串中每一个元素，然后再返回。<br>
+所以，上面的代码中，a_string.strip(&quot;ap&quot;)并不是删去首尾的&quot;ap&quot;字符，而是在首尾处分别查找是否存在字符&quot;a&quot;或者&quot;p&quot;，一直删除到字符串不以&quot;a&quot;或者&quot;p&quot;开头/结尾的时候才停止，然后返回结果。</p>
+<h1 id="解决方案">解决方案</h1>
+<ol>
+<li>使用removeprefix删除字符串开头特定字符，removesuffix删除结尾特定字符（<strong>推荐</strong>）。如：</li>
+</ol>
+<pre><code>a_string = &quot;append this list with string paap&quot;
+resp = a_string.removeprefix(&quot;ap&quot;).removesuffix(&quot;ap&quot;)
+print(resp)
+# 预期结果  pend this list with string pa
+# 实际结果  pend this list with string pa
+</code></pre>
+<ol start="2">
+<li>使用re.sub方法，在正则表达式中指定开头和结尾的字符串。如：</li>
+</ol>
+<pre><code>a_string = &quot;append this list with string paap&quot;
+resp = resp = re.sub(&quot;^ap|ap$&quot;, &quot;&quot;, a_string)
+print(resp)
+# 预期结果  pend this list with string pa
+# 实际结果  pend this list with string pa
+</code></pre>
+<p><em>以上两种方法更推荐第一种方法，因为无论是在简易程度还是运行速度方面，第一种方法都要明显更好于第二种方法。<br>
+测试代码如下：</em></p>
+<pre><code>import re
+import time
+
+a_string = &quot;append this list with string paap&quot;
+loop_count = 1000000
+def a():
+    start_time = time.time()
+    for i in range(loop_count):
+        re.sub(&quot;^ap|ap$&quot;, &quot;&quot;, a_string)
+    print(&quot;正则方法用时：&quot;, time.time()-start_time)
+
+def b():
+    start_time = time.time()
+    for i in range(loop_count):
+        a_string.removeprefix(&quot;ap&quot;).removesuffix(&quot;ap&quot;)
+    print(&quot;remove方法用时：&quot;, time.time()-start_time)
+
+a()  
+b()
+# 正则方法用时： 1.4415099620819092
+# remove方法用时： 0.09711885452270508
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+            <span id="/post/ni-ke-neng-dui-python-de-strip-fang-fa-you-yi-xie-wu-jie/" class="leancloud_visitors" data-flag-title="你可能对Python的strip方法有一些误解">
+                <em class="post-meta-item-text">阅读量 </em>
+                <i class="waline-pageview-count">0</i>
+            </span>
+        
+
+        
+
+        
+            <style>
+	div#waline{
+		width:100%;
+		max-width: 1000px;
+		padding: 2.5%
+	}
+</style>
+
+
+	<div id="waline"></div>
+
+<script type="module">
+	import { init } from 'https://unpkg.com/@waline/client@v2/dist/waline.mjs';
+	init({
+      el: '#waline',
+      serverURL: 'https://blog-comments-3hmc7si3w-wj4832.vercel.app',
+	  avatar: 'identicon',
+	  recordIp: true,
+	  reaction: true,
+	  pageview: true,
+	  comment: true,
+	  emoji: [
+      '//unpkg.com/@waline/emojis@1.1.0/bmoji',
+      '//unpkg.com/@waline/emojis@1.1.0/bilibili',
+    ],
+	reaction: [
+    'https://unpkg.com/@waline/emojis@1.1.0/bilibili/bb_sunglasses.png',
+    'https://unpkg.com/@waline/emojis@1.1.0/bilibili/bb_thumbsup.png',
+    'https://unpkg.com/@waline/emojis@1.1.0/bilibili/bb_doge.png',	
+	'https://unpkg.com/@waline/emojis@1.1.0/bilibili/bb_confused.png',
+	'https://unpkg.com/@waline/emojis@1.1.0/bilibili/bb_sweat.png',
+    'https://unpkg.com/@waline/emojis@1.1.0/bilibili/bb_sleepy.png',
+  ],
+	  dark: 'auto',
+    });
+</script>
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first"></div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        
+    </div>
+    <div>
+        Theme <a href="https://github.com/imhanjie/gridea-theme-pure" target="_blank">Pure</a>, Powered by <a
+                href="https://gridea.dev" target="_blank">Gridea</a> | <a href="https://wj4832.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+</div>
+
+<script>
+  hljs.highlightAll()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
